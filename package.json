@@ -16,8 +16,9 @@
   "author": "zhangrxiang",
   "license": "ISC",
   "dependencies": {
-    "fs": "0.0.1-security",
-    "http": "0.0.0"
+    "body-parser": "^1.18.2",
+    "cookie-parser": "^1.4.3",
+    "express": "^4.16.2"
   },
   "devDependencies": {
     "gulp": "^3.9.1"

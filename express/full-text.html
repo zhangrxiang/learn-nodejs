@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link href="https://cdn.quilljs.com/1.3.4/quill.snow.css" rel="stylesheet">
+    <link href="https://cdn.bootcss.com/highlight.js/9.12.0/styles/default.min.css" rel="stylesheet">
+    <link href="https://cdn.bootcss.com/KaTeX/0.9.0-alpha2/katex.min.css" rel="stylesheet">
+    <!--<link href="https://cdn.bootcss.com/bootstrap/4.0.0-beta.2/css/bootstrap.css" rel="stylesheet">-->
+    <title>Document</title>
+</head>
+
+<body>
+<!-- Include stylesheet -->
+<!-- Create the editor container -->
+<form action="http://127.0.0.1:8888/getData" method="get" class="">
+    <div id="editor" style="height: 500px">
+    </div>
+    <input name="desc" type="hidden" class="desc">
+    <div class="">
+        <label>
+            标题
+            <input type="text" name="title" class="title">
+        </label>
+    </div>
+    <div class="">
+        <input type="submit" name="submit" class="">
+        <span class="time"></span>
+    </div>
+</form>
+
+<script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/KaTeX/0.9.0-alpha2/katex.min.js"></script><!-- Include the Quill library -->
+<script src="https://cdn.quilljs.com/1.3.4/quill.js"></script>
+<!-- Initialize Quill editor -->
+<script>
+    $(function () {
+        hljs.configure({   // optionally configure hljs
+            languages: ['javascript', 'ruby', 'python', 'java']
+        });
+        let toolbarOptions = [
+            ['bold', 'italic', 'underline', 'strike'],        // toggled buttons
+            ['blockquote', 'code-block'],
+            [{'header': 1}, {'header': 2}],               // custom button values
+            [{'list': 'ordered'}, {'list': 'bullet'}],
+            [{'script': 'sub'}, {'script': 'super'}],      // superscript/subscript
+            [{'indent': '-1'}, {'indent': '+1'}],          // outdent/indent
+            [{'direction': 'rtl'}],                         // text direction
+            [{'size': ['small', false, 'large', 'huge']}],  // custom dropdown
+            [{'header': [1, 2, 3, 4, 5, 6, false]}],
+            [{'color': []}, {'background': []}],          // dropdown with defaults from theme
+            [{'font': []}],
+            [{'align': []}],
+            ['clean'], // remove formatting button,
+            ['formula'],
+            ['video'],
+            ['image'],
+        ];
+        let quill = new Quill('#editor', {
+            theme: 'snow',
+            modules: {
+                'formula': true,          // Include formula module
+                'toolbar': toolbarOptions,
+                'history': {          // Enable with custom configurations
+                    'delay': 2500,
+                    'userOnly': true
+                },
+                'syntax': true
+            }
+        });
+        let desc = localStorage.getItem("desc");
+        if (desc === null || desc === '') {
+            $.get("http://127.0.0.1:8888/g", null, function (ret) {
+                // console.log(ret)
+                let strs = String(ret).split("\r\n");
+                for (let i = 0; i < strs.length; i++) {
+                    // console.log(strs[i])
+                }
+                console.log(strs[1])
+                desc = JSON.parse(JSON.parse(strs[1]).desc);
+                console.log(desc)
+                // localStorage.setItem("desc", strs[1].desc);
+                $(".title").val(JSON.parse(strs[1]).title)
+                $(".time").text(JSON.parse(strs[1]).time)
+                quill.setContents(desc);
+            });
+            // $.get("http://127.0.0.1:8888/g", null, function (data) {
+            // console.log("cccccccccccccccccccccc");
+            // console.log(JSON.parse(data));
+            // data = JSON.stringify(data);
+            // localStorage.setItem("desc", data);
+            // quill.setContents(JSON.parse(data));
+            // }, "json");
+        } else {
+            desc = localStorage.getItem("desc");
+            console.log(desc);
+            quill.setContents(JSON.parse(desc));
+        }
+        $(".desc").val(JSON.stringify(quill.getContents()));
+        quill.on('text-change', change);
+        quill.on('blur', change);
+        quill.on('editor-change', change);
+        quill.on('selection-change', change);
+
+        function change(delta, oldDelta, source) {
+            $(".desc").val(JSON.stringify(quill.getContents()));
+            if (source === 'api') {
+                // console.log("An API --------------->");
+                // console.log("delta --> " + JSON.stringify(delta));
+                // console.log("oldDelta --> " + JSON.stringify(oldDelta));
+                // $.get("http://127.0.0.1:8888/getData", {desc: JSON.stringify(quill.getContents())}, function (data) {
+                //     console.log(data);
+                // }, "json");
+            } else if (source === 'user') {
+                // console.log("An USER --------------->");
+                // console.log("delta --> " + JSON.stringify(delta));
+                // console.log("oldDelta --> " + JSON.stringify(oldDelta));
+                // $.get("http://127.0.0.1:8888/getData", {desc: JSON.stringify(quill.getContents())}, function (data) {
+                //     console.log(data);
+                // }, "json");
+            }
+        }
+    });
+
+</script>
+</body>
+
+</html>
