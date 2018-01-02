@@ -15,7 +15,7 @@
 <body>
 <!-- Include stylesheet -->
 <!-- Create the editor container -->
-<form action="http://127.0.0.1:8888/getData" method="get" class="">
+<form action="http://127.0.0.1:8888/insertOne" method="post">
     <div id="editor" style="height: 500px">
     </div>
     <input name="desc" type="hidden" class="desc">
@@ -38,7 +38,7 @@
 <!-- Initialize Quill editor -->
 <script>
     $(function () {
-        hljs.configure({   // optionally configure hljs
+        hljs.configure({
             languages: ['javascript', 'ruby', 'python', 'java']
         });
         let toolbarOptions = [
@@ -62,69 +62,29 @@
         let quill = new Quill('#editor', {
             theme: 'snow',
             modules: {
-                'formula': true,          // Include formula module
+                'formula': true,
                 'toolbar': toolbarOptions,
-                'history': {          // Enable with custom configurations
+                'history': {
                     'delay': 2500,
                     'userOnly': true
                 },
                 'syntax': true
             }
         });
-        let desc = localStorage.getItem("desc");
-        if (desc === null || desc === '') {
-            $.get("http://127.0.0.1:8888/g", null, function (ret) {
-                // console.log(ret)
-                let strs = String(ret).split("\r\n");
-                for (let i = 0; i < strs.length; i++) {
-                    // console.log(strs[i])
-                }
-                console.log(strs[1])
-                desc = JSON.parse(JSON.parse(strs[1]).desc);
-                console.log(desc)
-                // localStorage.setItem("desc", strs[1].desc);
-                $(".title").val(JSON.parse(strs[1]).title)
-                $(".time").text(JSON.parse(strs[1]).time)
-                quill.setContents(desc);
-            });
-            // $.get("http://127.0.0.1:8888/g", null, function (data) {
-            // console.log("cccccccccccccccccccccc");
-            // console.log(JSON.parse(data));
-            // data = JSON.stringify(data);
-            // localStorage.setItem("desc", data);
-            // quill.setContents(JSON.parse(data));
-            // }, "json");
-        } else {
-            desc = localStorage.getItem("desc");
-            console.log(desc);
-            quill.setContents(JSON.parse(desc));
-        }
-        $(".desc").val(JSON.stringify(quill.getContents()));
         quill.on('text-change', change);
         quill.on('blur', change);
         quill.on('editor-change', change);
         quill.on('selection-change', change);
 
-        function change(delta, oldDelta, source) {
+        function change() {
             $(".desc").val(JSON.stringify(quill.getContents()));
-            if (source === 'api') {
-                // console.log("An API --------------->");
-                // console.log("delta --> " + JSON.stringify(delta));
-                // console.log("oldDelta --> " + JSON.stringify(oldDelta));
-                // $.get("http://127.0.0.1:8888/getData", {desc: JSON.stringify(quill.getContents())}, function (data) {
-                //     console.log(data);
-                // }, "json");
-            } else if (source === 'user') {
-                // console.log("An USER --------------->");
-                // console.log("delta --> " + JSON.stringify(delta));
-                // console.log("oldDelta --> " + JSON.stringify(oldDelta));
-                // $.get("http://127.0.0.1:8888/getData", {desc: JSON.stringify(quill.getContents())}, function (data) {
-                //     console.log(data);
-                // }, "json");
-            }
         }
+        $('form').submit(function () {
+            let desc = quill.getText();
+            let title = $('.title').val();
+            return !(desc === '' || title === '')
+        })
     });
-
 </script>
 </body>
 
